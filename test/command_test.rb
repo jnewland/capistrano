@@ -230,6 +230,13 @@ class CommandTest < Test::Unit::TestCase
     Capistrano::Command.new("echo $CAPISTRANO:HOST$", [session])
   end
 
+  def test_process_with_roles_placeholder_should_substitute_placeholder_with_each_role
+    session = setup_for_extracting_channel_action do |ch|
+      ch.expects(:exec).with(%(sh -c 'echo role1,role2'))
+    end
+    Capistrano::Command.new("echo $CAPISTRANO:ROLES$", [session])
+  end
+
   def test_process_with_unknown_placeholder_should_not_replace_placeholder
     session = setup_for_extracting_channel_action do |ch|
       ch.expects(:exec).with(%(sh -c 'echo $CAPISTRANO:OTHER$'))
@@ -262,6 +269,7 @@ class CommandTest < Test::Unit::TestCase
 
     def setup_for_extracting_channel_action(action=nil, *args)
       s = server("capistrano")
+      s.roles = [:role1, :role2]
       session = mock("session", :xserver => s)
 
       channel = {}

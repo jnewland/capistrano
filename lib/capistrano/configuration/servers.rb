@@ -57,14 +57,23 @@ module Capistrano
           servers = servers.reject { |server| except.any? { |key,value| server.options[key] == value } }
 
           if options[:skip_hostfilter]
-            servers.uniq
+            with_roles(servers.uniq)
           else
-            filter_server_list(servers.uniq)
+            with_roles(filter_server_list(servers.uniq))
           end
         end
       end
 
     protected
+
+      def with_roles(servers)
+        servers.map do |server|
+          server.roles = self.roles.find_all do |role_name, server_list|
+            server_list.include?(server)
+          end.map { |role| role.first }
+          server
+        end
+      end
 
       def filter_server_list(servers)
         return servers unless ENV['HOSTFILTER']

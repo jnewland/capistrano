@@ -6,6 +6,7 @@ module Capistrano
     attr_reader :user
     attr_reader :port
     attr_reader :options
+    attr_accessor :roles
 
     # The default user name to use when a user name is not explicitly provided
     def self.default_user
